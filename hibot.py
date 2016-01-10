@@ -9,16 +9,18 @@ from time import time
 if hasattr(__builtins__, 'xrange'):
 	range = xrange
 
+FLOURISH = r'(?:feliciaBoom|<3|gandsLessThanThree)'
+
+GREETING = \
+	r"(?:hi+|hey+|hia+|hi-?ya+|heya+|hello+|hallo+|greetings+|howdy+|welcome|(?:what)?'?s\s*up|howdy-?do+)"
+
 RE_GENERAL_GREETING = re.compile(
-	r'^\s*(?:feliciaBoom\s+)*'
-	r'(?:hi+|hey|hia|heya|hello|greetings|howdy)'
-	r'(?:\s+(?:all|everyone|everybody|weirdos|suckers|hoomans|people|ppl|again))?\s*'
-	r'[\.!]*(?:\s+feliciaBoom)*\s*$', re.I)
+	r'^\s*(?:' + FLOURISH + '\s+)*' + GREETING +
+	r'(?:\s+(?:all|everyone|everybody|weirdos|suckers|fuckers|hoomans|people|ppl|again|chat))?\s*'+
+	r'[\.!?]*(?:\s+' + FLOURISH + ')*\s*$', re.I)
 
 RE_GREETING = re.compile(
-	r'^\s*(?:feliciaBoom\s+)*'
-	r'(?:hi|hey|hia|heya|hello|greetings|howdy)\s+'
-	r'(.*?)\s*$', re.I)
+	r'^\s*(?:' + FLOURISH + '\s+)*' + GREETING + r'\s*(?:,\s*)?(.*?)\s*[\.!?]*\s*$', re.I)
 
 def normalize_nick(alias):
 	return alias.strip().lower()
