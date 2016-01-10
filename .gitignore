@@ -1,0 +1,5 @@
+.*
+*~
+config.yaml
+*.py[co]
+__pycache__

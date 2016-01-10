@@ -1,0 +1,18 @@
+nickname: bloody_albatross
+password: oauth:...
+host: irc.twitch.tv:6667
+greet_timeout: 3600
+channels:
+    - bloody_albatross
+nickalias:
+    - albert
+    - ross
+    - albert ross
+    - bloody
+    - bloody albatross
+    - alb
+    - alba
+    - tross
+    - panzi
+    - Mathias
+    - Mathias Panzenböck
