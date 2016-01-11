@@ -12,15 +12,15 @@ if hasattr(__builtins__, 'xrange'):
 FLOURISH = r'(?:feliciaBoom|<3|gandsLessThanThree)'
 
 GREETING = \
-	r"(?:hi+|hey+|hia+|hi-?ya+|heya+|heyo+|h[eau]llo+|greetings+|howdy+|welcome(?:\s+back)?|(?:what)?'?s\s*up(?:\s*dog+)|what\s*up(?:\s*dog+)?|howdy-?do+|yo|wh?add?\s*up(?:\s*dog+)?|yuhu+|good\s*day|'?g\s*day)"
+	r"(?:also,?\s+)?(?:hi+|hey+|hia+|hi-?ya+|heya+|heyo+|h[eau]llo+|greetings+|howdy+|welcome(?:\s+back)?|(?:what)?'?s\s*up(?:\s*dog+)?|what\s*up(?:\s*dog+)?|howdy-?do+|yo+|wh?add?\s*up(?:\s*dog+)?|yuhu+|good\s*day|'?g\s*day)"
 
 RE_GENERAL_GREETING = re.compile(
 	r'^\s*(?:' + FLOURISH + '\s+)*' + GREETING +
 	r'(?:\s+(?:all|everyone|everybody|weirdos|suckers|fuckers|hoomans|people|ppl|again|chat))?\s*'+
-	r'[\.!?]*(?:\s+' + FLOURISH + ')*\s*$', re.I)
+	r'[\.!\?]*(?:\s+' + FLOURISH + ')*\s*$', re.I)
 
 RE_GREETING = re.compile(
-	r'^\s*(?:' + FLOURISH + '\s+)*' + GREETING + r'\s+(?:,\s*)?(.*?)\s*[\.!?]*\s*$', re.I)
+	r'^\s*(?:' + FLOURISH + '\s+)*' + GREETING + r'\s+(?:,\s*)?(.*?)\s*[\.!\?]*\s*$', re.I)
 
 def normalize_nick(alias):
 	return alias.strip().lower()
