@@ -12,7 +12,7 @@ if hasattr(__builtins__, 'xrange'):
 FLOURISH = r'(?:feliciaBoom|<3|gandsLessThanThree)'
 
 GREETING = \
-	r"(?:hi+|hey+|hia+|hi-?ya+|heya+|hello+|hallo+|greetings+|howdy+|welcome|(?:what)?'?s\s*up|howdy-?do+)"
+	r"(?:hi+|hey+|hia+|hi-?ya+|heya+|heyo+|h[eau]llo+|greetings+|howdy+|welcome(?:\s+back)?|(?:what)?'?s\s*up(?:\s*dog+)|what\s*up(?:\s*dog+)?|howdy-?do+|yo|wh?add?\s*up(\s*dog+)?|yuhu+|good\s*day|'?g\s*day)"
 
 RE_GENERAL_GREETING = re.compile(
 	r'^\s*(?:' + FLOURISH + '\s+)*' + GREETING +
@@ -20,7 +20,7 @@ RE_GENERAL_GREETING = re.compile(
 	r'[\.!?]*(?:\s+' + FLOURISH + ')*\s*$', re.I)
 
 RE_GREETING = re.compile(
-	r'^\s*(?:' + FLOURISH + '\s+)*' + GREETING + r'\s*(?:,\s*)?(.*?)\s*[\.!?]*\s*$', re.I)
+	r'^\s*(?:' + FLOURISH + '\s+)*' + GREETING + r'\s+(?:,\s*)?(.*?)\s*[\.!?]*\s*$', re.I)
 
 def normalize_nick(alias):
 	return alias.strip().lower()
@@ -51,9 +51,20 @@ class HiBot(irc.bot.SingleServerIRCBot):
 		norm_nick   = normalize_nick(self.connection.get_nickname())
 		sender      = event.source.nick
 		norm_sender = normalize_nick(sender)
-		if norm_sender != norm_nick and time() - self.greeted.get(norm_sender, 0) > self.greet_timeout:
-			message = event.arguments[0]
+		message     = event.arguments[0]
+		now         = time()
 
+		if norm_sender == norm_nick:
+			match = RE_GREETING.match(message)
+			if match:
+				for nick in normalize_nick(match.group(1)).replace(',',' ').split():
+					if nick.startswith('@'):
+						nick = nick[1:]
+					elif nick == 'and':
+						continue
+					self.greeted[nick] = now
+
+		elif now - self.greeted.get(norm_sender, 0) > self.greet_timeout:
 			match = RE_GENERAL_GREETING.match(message)
 			if match:
 				self._say_hi(sender, event.target)
