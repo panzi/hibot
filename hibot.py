@@ -13,7 +13,7 @@ if hasattr(__builtins__, 'xrange'):
 FLOURISH = r'(?:feliciaBoom|<3|gandsLessThanThree)'
 
 GREETING = \
-	r"(?:also,?\s+)?(?:hi+|hey+|hia+|hi-?ya+|heya+|heyo+|h[eau]llo+|greetings+|howdy+|welcome(?:\s+back)?|(?:what)?'?s\s*up(?:\s*dog+)?|what\s*up(?:\s*dog+)?|howdy-?do+|yo+|wh?add?\s*up(?:\s*dog+)?|yuhu+|good\s*day|'?g\s*day)(?:\s+to)?"
+	r"(?:also,?\s+)?(?:hi+|hey+|heys+|hia+|hi-?ya+|heya+|heyo+|h[eau]llo+|howdy+doo+dy+|greetings+|howdy+|welcome(?:\s+back)?|(?:what)?'?s\s*up(?:\s*dog+)?|what\s*up(?:\s*dog+)?|howdy-?do+|yo+|wh?add?\s*up(?:\s*dog+)?|yuhu+|good\s*day|'?g\s*day)(?:\s+to)?"
 
 RE_GENERAL_GREETING = re.compile(
 	r'^\s*(?:' + FLOURISH + '\s+)*' + GREETING +
@@ -22,6 +22,10 @@ RE_GENERAL_GREETING = re.compile(
 
 RE_GREETING = re.compile(
 	r'^\s*(?:' + FLOURISH + '\s+)*' + GREETING + r'(?:\s*,\s*|\s+)(.*?)\s*[\.!\?]*\s*$', re.I)
+
+COLLECTIVE_NICKALIAS = [
+	'all', 'everyone', 'everybody', 'weirdos', 'suckers', 'fuckers', 'hoomans', 'people', 'ppl', 'chat'
+]
 
 logger = logging.getLogger('hibot')
 
@@ -32,23 +36,26 @@ class HiBot(irc.bot.SingleServerIRCBot):
 	def __init__(self, nickname, channels, nickalias=None, password=None, server='irc.twitch.tv', port=6667, greet_timeout=3600):
 		irc.bot.SingleServerIRCBot.__init__(self, [(server, port, password)], nickname, nickname)
 		self.join_channels = [channel if channel.startswith('#') else '#'+channel for channel in channels]
-		self.nickalias     = set(tuple(normalize_nick(nick).split()) for nick in nickalias) if nickalias is not None else set()
+		self._nickalias    = set(tuple(normalize_nick(nick).split()) for nick in nickalias) if nickalias is not None else set()
 		self.greeted       = {}
 		self.greet_timeout = greet_timeout
 
 		norm_nick = normalize_nick(nickname)
-		self.nickalias.add((norm_nick,))
-		self.nickalias.add(('@'+norm_nick,))
+		self._nickalias.add((norm_nick,))
+		self._nickalias.add(('@'+norm_nick,))
+		for alias in COLLECTIVE_NICKALIAS:
+			self._nickalias.add((alias,))
+		self._max_alias_len = max(len(alias) for alias in self._nickalias)
 
 	def on_welcome(self, connection, event):
 		for channel in self.join_channels:
 			connection.join(channel)
 
 	def on_nicknameinuse(self, connection, event):
-		print('error: nickname in use')
+		logger.error('nickname in use')
 
 	def on_error(self, connection, event):
-		print('error: %s' % ' '.join(event.arguments))
+		logger.error(' '.join(event.arguments))
 
 	def on_pubmsg(self, connection, event):
 		norm_nick   = normalize_nick(self.connection.get_nickname())
@@ -81,10 +88,10 @@ class HiBot(irc.bot.SingleServerIRCBot):
 					return
 
 	def _contains_alias(self, nicks):
-		for alias in self.nickalias:
-			alias_len = len(alias)
-			for i in range(0,len(nicks),alias_len):
-				if alias == tuple(nicks[i:i+alias_len]):
+		nicks_len = len(nicks)
+		for alias_len in range(1,self._max_alias_len + 1):
+			for i in range(0,nicks_len - alias_len + 1):
+				if tuple(nicks[i:i + alias_len]) in self._nickalias:
 					return True
 		return False
 
