@@ -6,6 +6,7 @@ import re
 import irc.bot
 import logging
 from time import time
+from random import random
 
 if hasattr(__builtins__, 'xrange'):
 	range = xrange
@@ -33,12 +34,14 @@ def normalize_nick(alias):
 	return alias.strip().lower()
 
 class HiBot(irc.bot.SingleServerIRCBot):
-	def __init__(self, nickname, channels, nickalias=None, password=None, server='irc.twitch.tv', port=6667, greet_timeout=3600):
+	def __init__(self, nickname, channels, nickalias=None, password=None, server='irc.twitch.tv', port=6667, greet_timeout=3600, greet_delay=3, greet_delay_random=2):
 		irc.bot.SingleServerIRCBot.__init__(self, [(server, port, password)], nickname, nickname)
-		self.join_channels = [channel if channel.startswith('#') else '#'+channel for channel in channels]
-		self._nickalias    = set(tuple(normalize_nick(nick).split()) for nick in nickalias) if nickalias is not None else set()
-		self.greeted       = {}
-		self.greet_timeout = greet_timeout
+		self.join_channels      = [channel if channel.startswith('#') else '#'+channel for channel in channels]
+		self._nickalias         = set(tuple(normalize_nick(nick).split()) for nick in nickalias) if nickalias is not None else set()
+		self.greeted            = {}
+		self.greet_timeout      = greet_timeout
+		self.greet_delay        = greet_delay
+		self.greet_delay_random = greet_delay_random
 
 		norm_nick = normalize_nick(nickname)
 		self._nickalias.add((norm_nick,))
@@ -46,6 +49,9 @@ class HiBot(irc.bot.SingleServerIRCBot):
 		for alias in COLLECTIVE_NICKALIAS:
 			self._nickalias.add((alias,))
 		self._max_alias_len = max(len(alias) for alias in self._nickalias)
+
+		self._hi_queue = {}
+		self._hi_queued = False
 
 	def on_welcome(self, connection, event):
 		for channel in self.join_channels:
@@ -77,14 +83,14 @@ class HiBot(irc.bot.SingleServerIRCBot):
 		elif now - self.greeted.get(norm_sender, 0) > self.greet_timeout:
 			match = RE_GENERAL_GREETING.match(message)
 			if match:
-				self._say_hi(sender, event.target)
+				self._queue_hi(sender, event.target)
 				return
 
 			match = RE_GREETING.match(message)
 			if match:
 				nicks = normalize_nick(match.group(1)).replace(',',' ').split()
 				if self._contains_alias(nicks):
-					self._say_hi(sender, event.target)
+					self._queue_hi(sender, event.target)
 					return
 
 	def _contains_alias(self, nicks):
@@ -95,10 +101,35 @@ class HiBot(irc.bot.SingleServerIRCBot):
 					return True
 		return False
 
-	def _say_hi(self, sender, channel):
-		self.connection.privmsg(channel, "Hi @%s!" % sender)
-		self.greeted[normalize_nick(sender)] = time()
-		logger.info('greeted %s' % sender)
+	def _queue_hi(self, sender, channel):
+		if channel in self._hi_queue:
+			self._hi_queue[channel].add(sender)
+		else:
+			self._hi_queue[channel] = {sender}
+
+		if not self._hi_queued:
+			self.connection.execute_delayed(self.greet_delay + (random() - 0.5) * self.greet_delay_random, self._perform_queued_hi)
+
+	def _perform_queued_hi(self):
+		self._hi_queued = False
+		for channel in self._hi_queue:
+			self._say_hi(self._hi_queue[channel], channel)
+		self._hi_queue.clear()
+
+	def _say_hi(self, senders, channel):
+		msg = ["Hi "]
+		senders = sorted('@'+sender for sender in senders)
+		if len(senders) > 1:
+			msg.append(', '.join(senders[:-1]))
+			msg.append(', and ')
+		msg.append(senders[-1])
+		msg.append('!')
+		msg = ''.join(msg)
+
+		self.connection.privmsg(channel, msg)
+		for sender in senders:
+			self.greeted[normalize_nick(sender)] = time()
+		logger.info('greeted %s' % ', '.join(senders))
 
 def main(args):
 	import yaml
@@ -113,7 +144,6 @@ def main(args):
 
 	server, port = config.get('host','irc.twitch.tv:6667').split(':',1)
 	port = int(port)
-	greet_timeout = config.get('greet_timeout',3600)
 
 	bot = HiBot(
 		config['nickname'],
@@ -122,7 +152,9 @@ def main(args):
 		config.get('password'),
 		server,
 		port,
-		greet_timeout)
+		config.get('greet_timeout',3600),
+		config.get('greet_delay',3),
+		config.get('greet_delay_random',3))
 	bot.start()
 
 if __name__ == '__main__':
