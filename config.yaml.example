@@ -1,14 +1,18 @@
-nickname: bloody_albatross
-password: oauth:...
-host: irc.twitch.tv:6667
-greet_timeout: 3600
-channels:
+host: irc.twitch.tv:6667 # IRC server to connect to.
+nickname: hibot          # IRC user name.
+password: XXX            # IRC password (if needed).
+greet_timeout:   3600    # Timeout in seconds until the same user gets greeted again.
+greet_delay:        2    # Delay in seconds between user says hi and bot greets them.
+                         # If other users said hi in the meantime they will be all
+                         # greeted at once in a single message.
+greet_delay_random: 1
+channels:                # Channels to join.
     - bloody_albatross
-nickalias:
-    - albert
-    - ross
-    - albert ross
-    - bloody
+nickalias:               # Alternative names to listen for.
+    - albert             # The bot will always listen for the nickname (with and
+    - ross               # without an @ before the nickname).
+    - albert ross        # The bot will also always answer to general greetings
+    - bloody             # like: "Hi!", "Hi chat!", "Hi @user and everyone else!"
     - albatross
     - bloody albatross
     - alb

@@ -137,7 +137,10 @@ def main(args):
 
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-c','--config',default='config.yaml')
+	parser.add_argument('-l','--log-level',type=int,default=0)
 	opts = parser.parse_args(args)
+
+	logger.setLevel(opts.log_level)
 
 	with open(opts.config,'rb') as fp:
 		config = yaml.load(fp)

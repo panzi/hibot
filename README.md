@@ -10,7 +10,24 @@ Run the bot with:
 
 	python hibot.py --config=config.yaml
 
-See `config.yaml.example` for a configuration example.
+### Options
+
+	-c, --config=FILE        Read config from FILE. If not given the bot tries
+	                         to read from "config.yaml".
+	-l, --log-level=LEVEL    Set Python log level.
+
+### Log levels
+
+Level    | Numeric Value
+-------- | ------------:
+CRITICAL |            50
+ERROR    |            40
+WARNING  |            30
+INFO     |            20
+DEBUG    |            10
+NOTSET   |             0
+
+See `config.yaml.example` for a example configuration.
 
 MIT License
 -----------
