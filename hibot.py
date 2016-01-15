@@ -14,7 +14,7 @@ if hasattr(__builtins__, 'xrange'):
 FLOURISH = r'(?:feliciaBoom|<3|gandsLessThanThree)'
 
 GREETING = \
-	r"(?:also,?\s+)?(?:ha*i+|hey+|heys+|hia+|hi-?ya+|heya+|heyo+|h[eau]llo+|howdy+doo+dy+|greetings+|howdy+|welcome(?:\s+back)?|(?:what)?'?s\s*up(?:\s*dog+)?|what\s*up(?:\s*dog+)?|howdy-?do+|yo+|wh?add?\s*up(?:\s*dog+)?|yuhu+|good\s*day|'?g\s*day)(?:\s+to)?"
+	r"(?:also,?\s+)?(?:ha*i+|hey+|heys+|hia+|hi-?ya+|heya+|heyo+|h[eau]llo+|howdy+doo+dy+|greetings+|howdy+|welcome(?:\s+back)?|(?:what)?'?s\s*up(?:\s*dog+)?|what\s*up(?:\s*dog+)?|howdy-?do+|yo+|wh?add?\s*up(?:\s*dog+)?|yuhu+|good\s*day|'?g\s*day)(?:\s+(?:to|there))?"
 
 RE_GENERAL_GREETING = re.compile(
 	r'^\s*(?:' + FLOURISH + '\s+)*' + GREETING +
@@ -34,7 +34,7 @@ def normalize_nick(alias):
 	return alias.strip().lower()
 
 class HiBot(irc.bot.SingleServerIRCBot):
-	def __init__(self, nickname, channels, nickalias=None, password=None, server='irc.twitch.tv', port=6667, greet_timeout=3600, greet_delay=3, greet_delay_random=2):
+	def __init__(self, nickname, channels, nickalias=None, password=None, server='irc.twitch.tv', port=6667, greet_timeout=3600, greet_delay=3, greet_delay_random=2, proxyusers=None):
 		irc.bot.SingleServerIRCBot.__init__(self, [(server, port, password)], nickname, nickname)
 		self.join_channels      = [channel if channel.startswith('#') else '#'+channel for channel in channels]
 		self._nickalias         = set(tuple(normalize_nick(nick).split()) for nick in nickalias) if nickalias is not None else set()
@@ -42,6 +42,7 @@ class HiBot(irc.bot.SingleServerIRCBot):
 		self.greet_timeout      = greet_timeout
 		self.greet_delay        = greet_delay
 		self.greet_delay_random = greet_delay_random
+		self.proxyusers         = proxyusers if proxyusers is not None else {'ytchat'}
 
 		norm_nick = normalize_nick(nickname)
 		self._nickalias.add((norm_nick,))
@@ -66,9 +67,15 @@ class HiBot(irc.bot.SingleServerIRCBot):
 	def on_pubmsg(self, connection, event):
 		norm_nick   = normalize_nick(self.connection.get_nickname())
 		sender      = event.source.nick
-		norm_sender = normalize_nick(sender)
 		message     = event.arguments[0]
 		now         = time()
+
+		if sender in self.proxyusers:
+			x = message.split(':',1)
+			if len(x) > 1:
+				sender, message = x
+
+		norm_sender = normalize_nick(sender)
 
 		if norm_sender == norm_nick:
 			match = RE_GREETING.match(message)
@@ -157,7 +164,8 @@ def main(args):
 		port,
 		config.get('greet_timeout',3600),
 		config.get('greet_delay',3),
-		config.get('greet_delay_random',3))
+		config.get('greet_delay_random',3),
+		config.get('proxyusers',{'ytchat'}))
 	bot.start()
 
 if __name__ == '__main__':

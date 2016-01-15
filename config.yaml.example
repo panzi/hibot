@@ -21,3 +21,6 @@ nickalias:               # Alternative names to listen for.
     - panzi
     - Mathias
     - Mathias Panzenböck
+proxyusers:              # There are bots that cross-post messages from somewhere
+    - ytchat             # else (e.g. from YouTube chat). They post messages in
+                         # the form of: "other_user_name: message..."
