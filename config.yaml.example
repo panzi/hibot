@@ -5,7 +5,9 @@ greet_timeout:   3600    # Timeout in seconds until the same user gets greeted a
 greet_delay:        2    # Delay in seconds between user says hi and bot greets them.
                          # If other users said hi in the meantime they will be all
                          # greeted at once in a single message.
-greet_delay_random: 1
+greet_delay_random: 1    # Randomization span around the greet_delay. In this
+                         # example there might be 0.5 seconds added or substracted
+                         # to/from greet_delay.
 channels:                # Channels to join.
     - bloody_albatross
 nickalias:               # Alternative names to listen for.

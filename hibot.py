@@ -14,7 +14,7 @@ if hasattr(__builtins__, 'xrange'):
 FLOURISH = r'(?:feliciaBoom|<3|gandsLessThanThree)'
 
 GREETING = \
-	r"(?:(?:also,|quick)?\s+)?(?:ha*i+|hey+|heys+|hia+|hi-?ya+|high|heya+|heyo+|h[eau]llo+|hola+|howdy+doo+dy+|greetings+|howdy+|welcome(?:\s+back)?|(?:what)?'?s\s*up(?:\s*dog+)?|what\s*up(?:\s*dog+)?|howdy-?do+|yo+|wh?add?\s*up(?:\s*dog+)?|yuhu+|good\s*day|'?g\s*day)(?:\s+(?:to|there))?"
+	r"(?:(?:also,|quick)?\s+)?(?:ay|oi|ha*i+|hey+|heys+|hia+|hi-?ya+|high|heya+|heyo+|h[eau]llo+|hola+|howdy+doo+dy+|greetings+|howdy+|welcome(?:\s+back)?|(?:what)?'?s\s*up(?:\s*dog+)?|what\s*up(?:\s*dog+)?|howdy-?do+|yo+|wh?add?\s*up(?:\s*dog+)?|yuhu+|good\s*day|'?g\s*day)(?:\s+(?:to|there))?"
 
 RE_GENERAL_GREETING = re.compile(
 	r'^\s*(?:' + FLOURISH + '\s+)*' + GREETING +
