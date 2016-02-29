@@ -11,7 +11,7 @@ from random import random
 if hasattr(__builtins__, 'xrange'):
 	range = xrange
 
-FLOURISH = r'(?:feliciaBoom|<3|gandsLessThanThree)'
+FLOURISH = r'(?:feliciaBoom|<3|gandsLessThanThree|feliciaHeart|g33kLove|g33kHugs|hrpgLoveyousortof)'
 
 # TODO: match "/me waves at all" etc.
 GREETING = \
