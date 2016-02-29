@@ -118,6 +118,7 @@ class HiBot(irc.bot.SingleServerIRCBot):
 
 		if not self._hi_queued:
 			self.connection.execute_delayed(self.greet_delay + (random() - 0.5) * self.greet_delay_random, self._perform_queued_hi)
+			self._hi_queued = True
 
 	def _perform_queued_hi(self):
 		self._hi_queued = False
