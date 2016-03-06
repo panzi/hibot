@@ -15,7 +15,7 @@ FLOURISH = r'(?:feliciaBoom|<3|gandsLessThanThree|feliciaHeart|g33kLove|g33kHugs
 
 # TODO: match "/me waves at all" etc.
 GREETING = \
-	r"(?:(?:also,|quick)?\s+)?(?:(?:ay|oi|ole|ha*i+|hey+|heys+|hia+|hiya+|hi-?ya+|high|heya+|heyo+|h[eau]llo+|hola+|howdy+doo+dy+|greetings+|howdy+|welcome(?:\s+back)?|(?:what)?'?s\s*up(?:\s*dog+)?|what\s*up(?:\s*dog+)?|howdy-?do+|yo+|wh?add?\s*up(?:\s*dog+)?|yuhu+|good\s*day|g'?\s*day|'?lo)\s*)+(?:to|there)?"
+	r"(?:(?:also,|quick)?\s+)?(?:(?:ay|oi|ole|ha*i+|hey+|heys+|hia+|hiya+|hi-?ya+|high|heya+|heyo+|h[eau]llo+|hola+|howdy+doo+dy+|greetings+|howdy+|welcome(?:\s+back)?|(?:what)?'?s\s*up(?:\s*dog+)?|what\s*up(?:\s*dog+)?|howdy-?do+|yo+|wh?add?\s*up(?:\s*dog+)?|yuhu+|g(?:ood|')?\s*(?:day|morning|evening|afternoon)|'?lo)\s*)+(?:to|there)?"
 
 RE_GENERAL_GREETING = re.compile(
 	r'^\s*(?:' + FLOURISH + '\s+)*' + GREETING +
