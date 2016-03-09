@@ -89,7 +89,7 @@ class HiBot(irc.bot.SingleServerIRCBot):
 						continue
 					self.greeted[nick] = now
 
-		elif now - self.greeted.get(norm_sender, 0) > self.greet_timeout:
+		elif now - self.greeted.get(norm_sender, 0) >= self.greet_timeout:
 			match = RE_GENERAL_GREETING.match(message)
 			if match:
 				self._queue_hi(sender, event.target)
@@ -121,14 +121,19 @@ class HiBot(irc.bot.SingleServerIRCBot):
 			self._hi_queued = True
 
 	def _perform_queued_hi(self):
+		now = time()
 		self._hi_queued = False
 		for channel in self._hi_queue:
-			self._say_hi(self._hi_queue[channel], channel)
+			# filter nicks to greet because maybe the user greeted manually
+			senders = [sender for sender in self._hi_queue[channel]
+			           if now - self.greeted.get(normalize_nick(sender), 0) >= self.greet_timeout]
+			if senders:
+				self._say_hi(senders, channel)
 		self._hi_queue.clear()
 
 	def _say_hi(self, senders, channel):
 		msg = ["Hi "]
-		senders = sorted('@'+sender for sender in senders)
+		senders = sorted(senders)
 		if len(senders) > 1:
 			msg.append(', '.join(senders[:-1]))
 			msg.append(', and ')
